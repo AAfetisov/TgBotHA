@@ -1,0 +1,23 @@
+name: "Hello world"
+description: "My first real add-on!"
+version: "1.0.0"
+slug: "hello_world"
+init: false
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+  - i386
+options:
+  bot_id: ""
+  admin_id: 0
+  group_id: ""
+  webhook_id_1: ""
+  webhook_id_2: ""
+schema:
+  bot_id: str
+  admin_id: int
+  group_id: str
+  webhook_id_1: str
+  webhook_id_2: str
