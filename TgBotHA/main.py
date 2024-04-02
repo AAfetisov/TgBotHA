@@ -1,43 +1,40 @@
-#loading config
 import json
-addon_config = None
+import telebot
+import requests
+from telebot import types
+
+# Constants
+DEFAULT_ADMIN_ID = 0
+HOME_ASSISTANT_API_URL = 'http://homeassistant:8123/api/webhook/'
+
+# Load configuration
 with open('/data/options.json', 'r') as file:
     addon_config = json.load(file)
 
-group_id = addon_config['group_id'] or 0
-bot_id = addon_config['bot_id'] or ""
-webhook_id_1 = addon_config['webhook_id_1'] or ""
-webhook_id_2 = addon_config['webhook_id_2'] or ""
-webhook_lights_on = 'http://homeassistant:8123/api/webhook/' + webhook_id_1
-webhook_lights_off = 'http://homeassistant:8123/api/webhook/' + webhook_id_2
-admin_id = addon_config['admin_id'] or 0
-admins =[]
-admins.append(admin_id)
+# Check configuration
+required_keys = ['bot_id', 'webhook_id_1', 'webhook_id_2', 'admin_id']
+for key in required_keys:
+    if key not in addon_config or not addon_config[key]:
+        raise ValueError(f"Error: {key} not found or empty in configuration")
 
-if bot_id == "":
-    raise ValueError("Error: No Bot ID supplied")
-if webhook_id_1 == "":
-    raise ValueError("Error: No Webhook 1 ID supplied")
-if webhook_id_2 == "":
-    raise ValueError("Error: No Webhook 2 ID supplied")
-if admin_id == 0:
-    raise ValueError("Error: No Admin ID supplied")
+group_id = addon_config['group_id']
+bot_id = addon_config['bot_id']
+webhook_id_1 = addon_config['webhook_id_1']
+webhook_id_2 = addon_config['webhook_id_2']
+webhook_lights_on = HOME_ASSISTANT_API_URL + webhook_id_1
+webhook_lights_off = HOME_ASSISTANT_API_URL + webhook_id_2
+admin_id = addon_config['admin_id']
+admins = [admin_id]
 
-import telebot
-from telebot import types
-
+# Initialize bot
 bot = telebot.TeleBot(bot_id)
 
+# Initialize markup
 markup = types.ReplyKeyboardMarkup(row_width=2)
 itembtn1 = types.KeyboardButton('Lights On')
 itembtn2 = types.KeyboardButton('Lights Off')
-markup.add(itembtn1)
-markup.add(itembtn2)
+markup.add(itembtn1, itembtn2)
 markup_remove = types.ReplyKeyboardRemove(selective=False)
-
-import requests
-
-print("The Bot is running")
 
 @bot.message_handler()
 def user_message(message):
@@ -46,7 +43,6 @@ def user_message(message):
     text = message.text
     
     if user_id not in admins:
-        # print(f"user outside of group - id:' {user_id} name: {message.from_user.first_name} {message.from_user.last_name}")
         bot.send_message(chat_id,':)')
         return
     
@@ -62,5 +58,6 @@ def user_message(message):
     else:
         bot.send_message(chat_id,'Press button for Lights',reply_markup=markup)
 
+print("The Bot is running")
 bot.polling(none_stop=True)
 print("Bot has stopped")
