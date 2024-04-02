@@ -41,18 +41,18 @@ def user_message(message):
     chat_id = message.chat.id
     user_id = message.from_user.id
     text = message.text
-    
+    myobj = {'somekey': 'somevalue'}
+
     if user_id not in admins:
         bot.send_message(chat_id,':)')
         return
     
     elif text == 'Lights On':
         bot.send_message(chat_id, f'<b>Turning Lights On!</b>', parse_mode='html')
-        myobj = {'somekey': 'somevalue'}
+        
         x = requests.post(webhook_lights_on, json = myobj)
     elif text == 'Lights Off':
         bot.send_message(chat_id, f'<b>Turning Lights Off!</b>', parse_mode='html')
-        myobj = {'somekey': 'somevalue'}
         x = requests.post(webhook_lights_off, json = myobj)
         
     else:
